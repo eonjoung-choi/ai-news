@@ -376,6 +376,21 @@
 
     .subscribe-btn:hover { opacity: 0.85; }
 
+    .subscribe-btn-link {
+      display: inline-block;
+      margin-top: 18px;
+      background: var(--white);
+      color: var(--black);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 14px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: opacity 0.15s ease;
+    }
+    .subscribe-btn-link:hover { opacity: 0.85; }
+
     .subscribe-confirm {
       display: none;
       margin-top: 12px;
@@ -811,22 +826,12 @@
   </div>
 
   <!-- Subscribe Section -->
-  <!-- ✅ Brevo 연동: BREVO_API_KEY_HERE와 BREVO_LIST_ID_HERE를 실제 값으로 교체하세요 -->
   <section class="subscribe-section" aria-label="이메일 구독">
     <p class="subscribe-title">📬 매주 수요일, 새 AI 뉴스를<br>이메일로 받아보세요</p>
     <p class="subscribe-desc">주 1회 발행 · 스팸 없음 · 언제든 해지 가능</p>
-    <div class="subscribe-form">
-      <input
-        class="subscribe-input"
-        type="email"
-        id="emailInput"
-        placeholder="your@email.com"
-        autocomplete="email"
-        inputmode="email"
-      />
-      <button class="subscribe-btn" onclick="handleSubscribe()">구독</button>
-    </div>
-    <p class="subscribe-confirm" id="subscribeConfirm"></p>
+    <a class="subscribe-btn-link" href="mailto:eonjoung.choi@gmail.com?subject=AI%20뉴스%20구독%20신청&body=안녕하세요%2C%20AI%20뉴스%20구독을%20신청합니다.">
+      ✉️ 구독 신청하기
+    </a>
   </section>
 
 </main>
@@ -838,77 +843,6 @@
   <p>50점 이상 뉴스만 선정</p>
 </footer>
 
-<script>
-  function toggleCard(summaryEl) {
-    const card = summaryEl.closest('.news-card');
-    const isOpen = card.classList.contains('open');
-    document.querySelectorAll('.news-card.open').forEach(c => {
-      if (c !== card) c.classList.remove('open');
-    });
-    card.classList.toggle('open', !isOpen);
-  }
-
-  // ✅ Brevo 연동: 아래 두 값을 실제 Brevo 계정 정보로 교체하세요
-  const BREVO_API_KEY = '__BREVO_API_KEY__';
-  const BREVO_LIST_ID = __BREVO_LIST_ID__;
-
-  async function handleSubscribe() {
-    const input   = document.getElementById('emailInput');
-    const confirm = document.getElementById('subscribeConfirm');
-    const email   = input.value.trim();
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      input.style.borderColor = 'rgba(255,80,80,0.7)';
-      setTimeout(() => input.style.borderColor = '', 1200);
-      return;
-    }
-
-    // API 키 미설정 안내
-    if (BREVO_API_KEY === 'BREVO_API_KEY_HERE') {
-      confirm.textContent = '⚙️ 구독 기능 준비 중입니다. 곧 이용 가능해요!';
-      confirm.style.display = 'block';
-      return;
-    }
-
-    confirm.textContent = '잠시만요...';
-    confirm.style.display = 'block';
-
-    try {
-      const res = await fetch('https://api.brevo.com/v3/contacts', {
-        method: 'POST',
-        headers: {
-          'api-key': BREVO_API_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email,
-          listIds: [BREVO_LIST_ID],
-          updateEnabled: true
-        })
-      });
-
-      if (res.status === 201 || res.status === 204) {
-        confirm.textContent = '✅ 구독 완료! 다음 수요일 뉴스를 보내드릴게요 :)';
-        input.value = '';
-        input.style.borderColor = 'rgba(100,255,100,0.5)';
-        setTimeout(() => input.style.borderColor = '', 2000);
-      } else {
-        const data = await res.json();
-        if (data.code === 'duplicate_parameter') {
-          confirm.textContent = '이미 구독 중인 이메일입니다 😊';
-        } else {
-          confirm.textContent = '오류가 발생했어요. 잠시 후 다시 시도해주세요.';
-        }
-      }
-    } catch {
-      confirm.textContent = '네트워크 오류가 발생했어요. 다시 시도해주세요.';
-    }
-  }
-
-  document.getElementById('emailInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') handleSubscribe();
-  });
-</script>
 
 </body>
 </html>
