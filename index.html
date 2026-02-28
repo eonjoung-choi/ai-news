@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>최신 AI 소식</title>
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --white: #ffffff;
+      --gray-100: #f5f5f5;
+      --gray-200: #e8e8e8;
+      --gray-400: #999999;
+      --gray-600: #555555;
+      --gray-800: #222222;
+      --radius-card: 20px;
+      --radius-tag: 99px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--gray-100);
+      color: var(--black);
+      font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--black);
+      color: var(--white);
+      padding: 48px 20px 32px;
+    }
+
+    .header-inner {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .site-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .site-period {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+      font-weight: 400;
+    }
+
+    .header-count {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .count-badge {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: var(--radius-tag);
+    }
+
+    /* ── Main ── */
+    .main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    /* ── News Card ── */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .news-card {
+      background: var(--white);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .news-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    }
+
+    .card-summary {
+      padding: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      user-select: none;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .card-date {
+      font-size: 12px;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.3px;
+      color: var(--black);
+    }
+
+    .card-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .bullet {
+      font-size: 13px;
+      color: var(--gray-600);
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      line-height: 1.5;
+    }
+
+    .bullet::before {
+      content: '•';
+      flex-shrink: 0;
+      color: var(--gray-400);
+      font-size: 14px;
+    }
+
+    .card-summary-text {
+      font-size: 14px;
+      color: var(--gray-600);
+      line-height: 1.65;
+      letter-spacing: -0.1px;
+    }
+
+    .card-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid var(--gray-100);
+      margin-top: 4px;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-400);
+    }
+
+    .toggle-icon {
+      width: 24px;
+      height: 24px;
+      background: var(--gray-100);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--gray-600);
+      transition: transform 0.25s ease;
+    }
+
+    .news-card.open .toggle-icon {
+      background: var(--black);
+    }
+
+    .news-card.open .toggle-icon svg {
+      stroke: var(--white);
+      transform: rotate(180deg);
+    }
+
+    /* ── Detail Panel ── */
+    .card-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .news-card.open .card-detail {
+      max-height: 960px;
+    }
+
+    .detail-inner {
+      padding: 0 20px 20px;
+      border-top: 1.5px solid var(--gray-100);
+    }
+
+    .detail-section {
+      margin-top: 16px;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--gray-400);
+      margin-bottom: 8px;
+    }
+
+    .detail-text {
+      font-size: 14px;
+      color: var(--gray-800);
+      line-height: 1.65;
+    }
+
+    .detail-insight {
+      background: var(--gray-100);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--black);
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .detail-insight::before {
+      content: '💡 ';
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-600);
+      text-decoration: none;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-tag);
+      padding: 6px 14px;
+      transition: all 0.15s ease;
+    }
+
+    .source-link:hover {
+      background: var(--black);
+      border-color: var(--black);
+      color: var(--white);
+    }
+
+    .source-link svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    /* ── Score Bar ── */
+    .score-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .score-label {
+      font-size: 11px;
+      color: var(--gray-400);
+      flex-shrink: 0;
+      width: 46px;
+    }
+
+    .score-bar-wrap {
+      flex: 1;
+      height: 4px;
+      background: var(--gray-200);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      background: var(--black);
+      border-radius: 99px;
+    }
+
+    .score-num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--black);
+      flex-shrink: 0;
+      width: 28px;
+      text-align: right;
+    }
+
+    /* ── Subscribe Section ── */
+    .subscribe-section {
+      margin-top: 36px;
+      background: var(--black);
+      border-radius: var(--radius-card);
+      padding: 28px 24px;
+      color: var(--white);
+    }
+
+    .subscribe-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+
+    .subscribe-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+    }
+
+    .subscribe-form {
+      margin-top: 18px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .subscribe-input {
+      flex: 1;
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .subscribe-input::placeholder { color: rgba(255,255,255,0.35); }
+    .subscribe-input:focus { border-color: rgba(255,255,255,0.5); }
+
+    .subscribe-btn {
+      flex-shrink: 0;
+      background: var(--white);
+      color: var(--black);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .subscribe-btn:hover { opacity: 0.85; }
+
+    .subscribe-confirm {
+      display: none;
+      margin-top: 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+    }
+
+    /* ── Footer ── */
+    .site-footer {
+      text-align: center;
+      padding: 24px 16px 40px;
+      font-size: 12px;
+      color: var(--gray-400);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    @media (min-width: 520px) {
+      .site-header { padding: 56px 24px 36px; }
+      .main { padding: 24px 24px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ───── Header ───── -->
+<header class="site-header">
+  <div class="header-inner">
+    <h1 class="site-title"><span>⚡</span>최신 AI 소식</h1>
+    <p class="site-period">2026년 2월 21일 — 2월 28일 큐레이션</p>
+    <div class="header-count">
+      <span class="count-badge">6 Stories</span>
+      <span class="count-badge">프로덕트 디자이너 · PM · 기획자</span>
+    </div>
+  </div>
+</header>
+
+<!-- ───── Main ───── -->
+<main class="main">
+  <div class="news-list">
+
+    <!-- Card 1: ChatGPT 광고 테스트 -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 25</span>
+        </div>
+        <h2 class="card-title">📢 OpenAI — ChatGPT 무료 플랜에 광고 테스트 시작</h2>
+        <p class="card-summary-text">OpenAI가 ChatGPT 무료 플랜 사용자를 대상으로 미국에서 광고 노출을 시작했습니다. 유료 플랜은 광고 없이 유지되며, 광고에는 명시적 라벨이 표시되고 민감 토픽 대화 중에는 노출되지 않습니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              OpenAI가 ChatGPT 무료·Go 플랜 사용자를 대상으로 미국에서 광고 노출을 시작했습니다 📣<br><br>
+              광고는 대화 흐름 사이에 배치되며, 반드시 '광고(Ad)' 라벨이 표시됩니다.
+              건강·금융 등 민감 토픽 대화 중에는 광고가 노출되지 않으며,
+              사용자가 직접 광고 개인화 수준을 조정할 수 있습니다.<br><br>
+              유료 Plus · Pro 플랜은 광고 없이 유지됩니다.
+              월간 활성 사용자 6억 명을 기반으로 한 광고 인벤토리가 처음 열리는 것으로,
+              AI 플랫폼 내 브랜드 광고 시장의 본격적인 출발점으로 평가됩니다 🏁
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              ChatGPT가 광고 채널로 부상함에 따라, AI 대화 맥락에 최적화된 새로운 광고 포맷 연구가 필요합니다. 특히 커머스·카드·포인트 관련 브랜드라면 AI 대화 내 첫 번째 광고 인벤토리를 선점하는 전략을 검토할 시점입니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:71%"></div></div>
+              <span class="score-num">25</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:88%"></div></div>
+              <span class="score-num">22</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">12</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://releasebot.io/updates/openai/chatgpt" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · ChatGPT Release Notes
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 2: Perplexity Computer -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 25</span>
+        </div>
+        <h2 class="card-title">🖥️ Perplexity — 'Computer' 출시, 19개 AI 모델을 조율하는 슈퍼에이전트</h2>
+        <p class="card-summary-text">Perplexity가 Claude · GPT · Gemini · Grok 등 19개 AI 모델을 작업 목적에 따라 자동으로 조율하는 슈퍼에이전트 'Computer'를 출시했습니다. 월 $200 Max 플랜 전용으로, 출시 당일 역대 최고 매출을 기록했습니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              Perplexity가 창사 이래 가장 야심찬 제품이라고 밝힌 'Computer'를 출시했습니다 🚀<br><br>
+              사용자가 고수준의 목표를 입력하면 Computer가 이를 세부 작업으로 분해하고,
+              각 작업에 가장 적합한 AI 모델을 자동으로 선택해 처리합니다.
+              추론은 Claude Opus, 딥리서치는 Gemini, 이미지는 Nano Banana, 영상은 Veo 3.1,
+              빠른 처리는 Grok이 담당하는 식입니다.<br><br>
+              OpenClaw와의 차이점은 <strong>로컬 PC 제어가 없는 클라우드 에이전트</strong>라는 점으로,
+              보안 위험 없이 복잡한 업무를 위임할 수 있습니다 🛡️
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              단일 AI 모델 의존에서 벗어나, 작업 종류별로 최적 모델을 조율하는 '멀티모델 오케스트레이션'이 차세대 에이전트의 표준이 될 전망입니다. 복잡한 업무 자동화 서비스 기획 시 이 구조를 레퍼런스로 참고할 수 있습니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:63%"></div></div>
+              <span class="score-num">22</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:92%"></div></div>
+              <span class="score-num">23</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">12</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://techcrunch.com/2026/02/27/perplexitys-new-computer-is-another-bet-that-users-need-many-ai-models/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · TechCrunch
+          </a>
+          &nbsp;
+          <a class="source-link" href="https://venturebeat.com/technology/perplexity-launches-computer-ai-agent-that-coordinates-19-models-priced-at" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · VentureBeat
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 3: Google Nano Banana 2 -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 26</span>
+        </div>
+        <h2 class="card-title">🎨 Google — Nano Banana 2 출시, 실시간 이미지 생성 속도 3배 향상</h2>
+        <p class="card-summary-text">Google이 온디바이스 이미지 생성 모델 'Nano Banana 2'를 출시했습니다. 전작 대비 생성 속도 3배·텍스트 렌더링 대폭 개선으로, Chrome · Gemini · Workspace 등 Google 전 제품군에 141개국 무료 통합됩니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              Google이 온디바이스 이미지 생성 모델 'Nano Banana 2'를 발표했습니다 🍌<br><br>
+              기존 Nano Banana 대비 생성 속도가 3배 빠르며, 이미지 내 텍스트 표현이 크게 개선되어
+              광고 배너 · 썸네일 · 카드뉴스 제작에 바로 활용할 수 있는 수준입니다.<br><br>
+              Chrome 사이드패널, Gemini 앱, Google Workspace, Perplexity Computer 등
+              Google 생태계 전반에 즉시 통합되며 141개국에서 추가 요금 없이 사용 가능합니다.
+              Midjourney · DALL·E 대비 <strong>실시간 편집과 브라우저 내 직접 사용</strong>이 차별점입니다 ✨
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              이미지 생성이 별도 도구가 아닌 브라우저·메일·문서 안에서 실시간으로 가능해졌습니다. 마케팅 소재·배너·카드 이미지 제작 워크플로우를 AI 기반으로 전환할 수 있는 좋은 시점입니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:71%"></div></div>
+              <span class="score-num">25</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">20</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:93%"></div></div>
+              <span class="score-num">14</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://blog.google/products/gemini/nano-banana-2/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · Google Blog
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 4: Apple Visual Intelligence -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 22</span>
+        </div>
+        <h2 class="card-title">👁️ Apple — Visual Intelligence 전 기기 확대, 카메라로 쇼핑·결제까지</h2>
+        <p class="card-summary-text">Apple이 Visual Intelligence를 iPhone 16 이상 전 기기와 AirPods · Apple Watch · Vision Pro로 확대했습니다. 카메라로 상품을 비추면 가격 비교부터 Apple Pay 결제까지 앱 이탈 없이 한 번에 처리됩니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              Apple이 Visual Intelligence를 iPhone 16 이상 전 모델과 웨어러블 기기로 확대했습니다 📱<br><br>
+              카메라로 상품을 비추면 실시간으로 제품 정보 · 가격 비교 · 구매 옵션이 나타나고,
+              Apple Pay로 바로 결제까지 연결됩니다. 오프라인 매장 내에서도 진열 상품을 인식해
+              앱 없이 즉시 구매할 수 있는 경험을 제공합니다.<br><br>
+              Google Lens와 달리 <strong>Apple Pay · Wallet · 멤버십 카드와 네이티브 통합</strong>되어
+              인식부터 결제까지 앱 이탈 없이 완결되는 것이 핵심 차별점입니다 🛒
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              카메라가 커머스 진입점이 되는 시대가 본격화됩니다. 카드·포인트·커머스 서비스라면 Visual Intelligence 연동 시나리오(오프라인 매장 결제, 적립 자동화 등)를 선제적으로 검토해야 합니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">28</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">20</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:87%"></div></div>
+              <span class="score-num">13</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://www.apple.com/newsroom/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · Apple Newsroom
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 5: IBM X-Force -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 25</span>
+        </div>
+        <h2 class="card-title">🔐 IBM X-포스 — AI 기반 해킹 공격 44% 급증, 2026 위협 보고서</h2>
+        <p class="card-summary-text">IBM '2026 X-포스 위협 보고서'에 따르면 AI 기반 자동 취약점 탐지로 해킹 공격이 전년 대비 44% 급증했습니다. 인증 통제 부재와 API 키 평문 노출이 주요 위험으로 지목되며, 기업 방어 속도가 공격 속도를 따라가지 못하고 있습니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              IBM이 발표한 '2026 X-포스 위협 인텔리전스 인덱스'에 따르면,
+              AI가 공격자의 도구로도 본격 활용되면서 사이버 위협의 속도와 범위가 급확대되고 있습니다 ⚠️<br><br>
+              AI 기반 취약점 탐지 자동화로 인해, 기업 보안팀이 인지하기 전에 이미 공격이 시작되는 상황이 증가하고 있습니다.<br><br>
+              인증 통제 부재가 가장 큰 취약점으로 지목되었으며, API 키 · OAuth 토큰 · 민감 데이터의
+              평문 노출 사례가 급증하고 있습니다. AI 에이전트에 권한을 부여할수록
+              보안 노출 면적이 비례해 넓어지는 구조적 문제도 경고했습니다 📊
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              AI 기능을 새로 출시하거나 에이전트에 권한을 부여할 때, 인증 강화 · API 보안 점검이 최우선 과제입니다. 특히 결제·개인정보를 다루는 서비스는 AI 도입 전 보안 표면 점검이 필수입니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:43%"></div></div>
+              <span class="score-num">15</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:80%"></div></div>
+              <span class="score-num">20</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:67%"></div></div>
+              <span class="score-num">10</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://www.aitimes.kr/news/articleView.html?idxno=38809" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · 인공지능신문
+          </a>
+          &nbsp;
+          <a class="source-link" href="https://www.prnewswire.com/news-releases/ibm-2026-x-force-threat-index-ai-driven-attacks-are-escalating-as-basic-security-gaps-leave-enterprises-exposed-302696274.html" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · PR Newswire
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Card 6: Anthropic Pentagon -->
+    <article class="news-card">
+      <div class="card-summary" onclick="toggleCard(this)">
+        <div class="card-meta">
+          <span class="card-date">2026. 2. 27</span>
+        </div>
+        <h2 class="card-title">⚖️ Anthropic — 미 국방부 계약 거부 · Trump 블랙리스트 · AI 윤리 전선 형성</h2>
+        <p class="card-summary-text">Anthropic이 자율 무기·감시 시스템 AI 사용 금지 원칙을 이유로 미 국방부 계약을 거부했고, Trump 행정부는 이에 Anthropic을 블랙리스트에 지정했습니다. Google · OpenAI 임직원 260명 이상이 지지 서명에 나서며 AI 업계의 윤리 논쟁이 공개적으로 격화됐습니다.</p>
+        <div class="card-toggle">
+          <span class="toggle-label">자세히 보기</span>
+          <span class="toggle-icon">
+            <svg viewBox="0 0 12 12" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4l4 4 4-4"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <div class="card-detail">
+        <div class="detail-inner">
+          <div class="detail-section">
+            <p class="detail-label">주요 내용</p>
+            <p class="detail-text">
+              Anthropic이 자율 무기 시스템과 국내 대규모 감시에 AI를 사용하는 것을 금지하는
+              'Red Lines' 원칙을 이유로 미 국방부의 최대 2억 달러 계약을 거부했습니다 🚫<br><br>
+              이에 Trump 행정부는 Anthropic을 국가안보 위험으로 지정하고 정부 내 사용을 금지했습니다.
+              반면 OpenAI는 즉각 국방부와 기밀 네트워크 기술 제공 계약을 체결했습니다.<br><br>
+              Google · OpenAI 임직원 260명 이상이 Anthropic의 입장을 지지하는 공개서한에 서명하며
+              AI 업계 내부에서 <strong>'AI 윤리 vs. 사업 성장'</strong>의 갈등이 공개적으로 표면화되었습니다 🌐
+            </p>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">시사점</p>
+            <div class="detail-insight">
+              AI 거버넌스가 기업 평판과 파트너십에 직접 영향을 미치는 시대가 도래했습니다. 사용 중인 AI 모델의 정책·윤리 기준이 자사 서비스의 신뢰도와 연결될 수 있으므로, AI 공급사 선택 시 거버넌스 입장을 함께 검토해야 합니다.
+            </div>
+          </div>
+          <div class="detail-section">
+            <p class="detail-label">큐레이션 기준</p>
+            <div class="score-row">
+              <span class="score-label">적합성</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:29%"></div></div>
+              <span class="score-num">10</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">임팩트</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:100%"></div></div>
+              <span class="score-num">25</span>
+            </div>
+            <div class="score-row">
+              <span class="score-label">확산/채택</span>
+              <div class="score-bar-wrap"><div class="score-bar-fill" style="width:87%"></div></div>
+              <span class="score-num">13</span>
+            </div>
+          </div>
+          <a class="source-link" href="https://techcrunch.com/2026/02/27/employees-at-google-and-openai-support-anthropics-pentagon-stand-in-open-letter/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · TechCrunch
+          </a>
+          &nbsp;
+          <a class="source-link" href="https://www.npr.org/2026/02/27/nx-s1-5729118/trump-anthropic-pentagon-openai-ai-weapons-ban" target="_blank" rel="noopener">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6h10M7 2l4 4-4 4"/></svg>
+            원문 보기 · NPR
+          </a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- Subscribe Section -->
+  <!-- ✅ Brevo 연동: BREVO_API_KEY_HERE와 BREVO_LIST_ID_HERE를 실제 값으로 교체하세요 -->
+  <section class="subscribe-section" aria-label="이메일 구독">
+    <p class="subscribe-title">📬 매주 수요일, 새 AI 뉴스를<br>이메일로 받아보세요</p>
+    <p class="subscribe-desc">주 1회 발행 · 스팸 없음 · 언제든 해지 가능</p>
+    <div class="subscribe-form">
+      <input
+        class="subscribe-input"
+        type="email"
+        id="emailInput"
+        placeholder="your@email.com"
+        autocomplete="email"
+        inputmode="email"
+      />
+      <button class="subscribe-btn" onclick="handleSubscribe()">구독</button>
+    </div>
+    <p class="subscribe-confirm" id="subscribeConfirm"></p>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <p>매주 수요일 업데이트 · 출처: aitimes.com · aitimes.kr · aimatters.co.kr · etnews.com</p>
+  <p>큐레이션 기준: 적합성 35 · 임팩트 25 · 확산/채택 15 · 실행가능성 15 · 리스크 10</p>
+  <p>50점 이상 뉴스만 선정</p>
+</footer>
+
+<script>
+  function toggleCard(summaryEl) {
+    const card = summaryEl.closest('.news-card');
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.news-card.open').forEach(c => {
+      if (c !== card) c.classList.remove('open');
+    });
+    card.classList.toggle('open', !isOpen);
+  }
+
+  // ✅ Brevo 연동: 아래 두 값을 실제 Brevo 계정 정보로 교체하세요
+  const BREVO_API_KEY = '__BREVO_API_KEY__';
+  const BREVO_LIST_ID = __BREVO_LIST_ID__;
+
+  async function handleSubscribe() {
+    const input   = document.getElementById('emailInput');
+    const confirm = document.getElementById('subscribeConfirm');
+    const email   = input.value.trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      input.style.borderColor = 'rgba(255,80,80,0.7)';
+      setTimeout(() => input.style.borderColor = '', 1200);
+      return;
+    }
+
+    // API 키 미설정 안내
+    if (BREVO_API_KEY === 'BREVO_API_KEY_HERE') {
+      confirm.textContent = '⚙️ 구독 기능 준비 중입니다. 곧 이용 가능해요!';
+      confirm.style.display = 'block';
+      return;
+    }
+
+    confirm.textContent = '잠시만요...';
+    confirm.style.display = 'block';
+
+    try {
+      const res = await fetch('https://api.brevo.com/v3/contacts', {
+        method: 'POST',
+        headers: {
+          'api-key': BREVO_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+          listIds: [BREVO_LIST_ID],
+          updateEnabled: true
+        })
+      });
+
+      if (res.status === 201 || res.status === 204) {
+        confirm.textContent = '✅ 구독 완료! 다음 수요일 뉴스를 보내드릴게요 :)';
+        input.value = '';
+        input.style.borderColor = 'rgba(100,255,100,0.5)';
+        setTimeout(() => input.style.borderColor = '', 2000);
+      } else {
+        const data = await res.json();
+        if (data.code === 'duplicate_parameter') {
+          confirm.textContent = '이미 구독 중인 이메일입니다 😊';
+        } else {
+          confirm.textContent = '오류가 발생했어요. 잠시 후 다시 시도해주세요.';
+        }
+      }
+    } catch {
+      confirm.textContent = '네트워크 오류가 발생했어요. 다시 시도해주세요.';
+    }
+  }
+
+  document.getElementById('emailInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSubscribe();
+  });
+</script>
+
+</body>
+</html>
